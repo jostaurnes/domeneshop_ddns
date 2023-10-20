@@ -1,0 +1,21 @@
+# https://developers.home-assistant.io/docs/add-ons/configuration#add-on-config
+name: DomeneShop DDNS Update
+version: "1.0.0"
+slug: example
+description: Update a DomeneShop A/AAAA DNS record Dynamically
+url: "https://jostaurnes/domeneshop_ddns/new/main/ddns_update"
+startup: "application"
+arch:
+  - armhf
+  - armv7
+  - aarch64
+  - amd64
+  - i386
+init: true
+map:
+  - share:rw
+options:
+  message: "Hello world..."
+schema:
+  message: "str?"
+image: "ghcr.io/home-assistant/{arch}-addon-example"
