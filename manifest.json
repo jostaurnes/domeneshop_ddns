@@ -2,6 +2,8 @@
   "domain": "domeneshop_ddns",
   "name": "DomeneShop DDns Update",
   "codeowners": [],
+  "version": "1.0.0",
   "documentation": "https://www.home-assistant.io/integrations/domeneshop_ddns",
-  "iot_class": "cloud_polling"
+  "iot_class": "cloud_polling",
+  "config_flow": "no"
 }

@@ -1,39 +1,18 @@
 """Support for DomeneShop DDNS."""
 import asyncio
-from datetime import timedelta
+
 import logging
 
 import aiohttp
-import voluptuous as vol
-
 from homeassistant.const import CONF_DOMAIN, CONF_PASSWORD, CONF_TIMEOUT, CONF_USERNAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.typing import ConfigType
+from .const import DOMAIN, INTERVAL, UPDATE_BASE
 
 _LOGGER = logging.getLogger(__name__)
 
-DOMAIN = "domeneshop_ddns"
-
-INTERVAL = timedelta(minutes=5)
-
-DEFAULT_TIMEOUT = 10
-
-CONFIG_SCHEMA = vol.Schema(
-    {
-        DOMAIN: vol.Schema(
-            {
-                vol.Required(CONF_DOMAIN): cv.string,
-                vol.Required(CONF_USERNAME): cv.string,
-                vol.Required(CONF_PASSWORD): cv.string,
-                vol.Optional(CONF_TIMEOUT, default=DEFAULT_TIMEOUT): cv.positive_int,
-            }
-        )
-    },
-    extra=vol.ALLOW_EXTRA,
-)
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
@@ -63,10 +42,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def _update_ddns_domains(hass, session, domain, user, password, timeout):
     """Update DDNS Domains."""
-    update_base_google = "domains.google.com/nic"
-    update_base_domeneshop = "api.domeneshop.no/v0/dyndns"
-    update_base = update_base_domeneshop
-    url = f"https://{user}:{password}@"+update_base+"/update"
+    url = f"https://{user}:{password}@{UPDATE_BASE}/update"
 
     params = {"hostname": domain}
 
@@ -75,13 +51,15 @@ async def _update_ddns_domains(hass, session, domain, user, password, timeout):
             resp = await session.get(url, params=params)
             body = await resp.text()
 
-            if body.startswith("good") or body.startswith("nochg"):
+            if resp.status == 200 or resp.status == 204:
+                _LOGGER.info("Successfully updated DDNS for domain: %s", domain)
                 return True
 
-            _LOGGER.warning("Updating Google Domains failed: %s => %s", domain, body)
+            _LOGGER.warning("Updating DomeneShop DDSS failed: %s => %d,%s", domain, resp.status, body)
+            return False
 
     except aiohttp.ClientError:
-        _LOGGER.warning("Can't connect to DDNS Update API")
+        _LOGGER.warning("Can't connect to DDNS Update API: %s", url)
 
     except asyncio.TimeoutError:
         _LOGGER.warning("Timeout from DDNS Update API for domain: %s", domain)
