@@ -1,0 +1,19 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Dynamic DDNS Config",
+                "description": "Setup your config",
+                "data": {
+                    "domain": "Domain Name",
+                    "username": "Username or clientid",
+                    "password": "Password or client secret token",
+                    "timeout": "Time intervall for polling"
+                },
+                "data_description": {
+                    "domain": "Domain name of the DDNS entry to update"
+                }
+            }
+        }
+    }
+}
