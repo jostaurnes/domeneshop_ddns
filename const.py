@@ -3,6 +3,7 @@ from homeassistant.const import CONF_DOMAIN, CONF_PASSWORD, CONF_TIMEOUT, CONF_U
 
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.selector import TextSelector, TextSelectorConfig, TextSelectorType, NumberSelector, NumberSelectorConfig, NumberSelectorMode
 
 DOMAIN = "domeneshop_ddns"
 update_base_google = "domains.google.com/nic"
@@ -15,10 +16,20 @@ DEFAULT_TIMEOUT = 10
 
 DOMAIN_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_DOMAIN): cv.string,
-        vol.Required(CONF_USERNAME): cv.string,
-        vol.Required(CONF_PASSWORD): cv.string,
-        vol.Optional(CONF_TIMEOUT, default=DEFAULT_TIMEOUT): cv.positive_int,
+        vol.Required(CONF_DOMAIN): TextSelector(
+            TextSelectorConfig(type=TextSelectorType.TEXT, autocomplete="host")
+        ),
+
+        vol.Required(CONF_USERNAME): TextSelector(
+            TextSelectorConfig(type=TextSelectorType.EMAIL, autocomplete="username")
+        ),
+        vol.Required(CONF_PASSWORD): TextSelector(
+            TextSelectorConfig(type=TextSelectorType.PASSWORD, autocomplete="password")
+        ),
+        vol.Optional(CONF_TIMEOUT, default=DEFAULT_TIMEOUT): NumberSelector(
+            NumberSelectorConfig(min=5, max=60, step=5, unit_of_measurement="s",
+                                 mode=NumberSelectorMode("slider"))
+        ),
     }
 )
 
